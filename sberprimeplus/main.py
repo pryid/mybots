@@ -8,7 +8,7 @@ import psutil
 from pyrogram import Client, filters, types
 
 # Локальные импорты
-from constants_sberprime import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
+from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 
 
 # Загрузка таблицы замен
