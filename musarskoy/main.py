@@ -6,7 +6,7 @@ from random import choice, randint
 from pyrogram import Client, filters
 
 # Локальные импорты
-from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
+from constants import API_ID, API_HASH, BOT_TOKEN
 
 # Загрузка JSON-файла с ответами
 with open("responses.json", "r") as file:
