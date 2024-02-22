@@ -18,6 +18,7 @@ To update the container after making changes or pulling updates from the reposit
 1. **Remove the Existing Container and Image**: Before you can rebuild the container, you need to remove the current version. Run these commands to delete the existing container and image:
 
    ```shell
+   podman stop mybots
    podman rm mybots
    podman rmi mybots
    ```
