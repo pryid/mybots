@@ -7,7 +7,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineQueryResultArticle, InputTextMessageContent
 
 # Локальные импорты
-import constants
+from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 
 # Функция для чтения и парсинга файла с правилами
 def parse_rules():
