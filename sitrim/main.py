@@ -51,7 +51,7 @@ app = Client("sitrim", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 # Функция для логирования
 def log_action(user, action):
     log_message = f"@{user.username or ''}, {user.first_name or ''} {user.last_name or ''}, ID: {user.id} - {action}"
-    app.send_message(constants.LOG_CHANNEL_ID, log_message)
+    app.send_message(LOG_CHANNEL_ID, log_message)
 
 @app.on_message(filters.private & filters.command("start"))
 def start(client, message: Message):
