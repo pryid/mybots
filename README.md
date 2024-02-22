@@ -8,7 +8,7 @@
 
    ```shell
    podman build -t mybots .
-   podman run --name mybots mybots
+   podman run -d --name mybots mybots
    ```
 
 ### Updating the Container
@@ -27,7 +27,7 @@ To update the container after making changes or pulling updates from the reposit
 
    ```shell
    podman build -t mybots .
-   podman run --name mybots mybots
+   podman run -d --name mybots mybots
    ```
 
 ---
