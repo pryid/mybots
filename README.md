@@ -1,41 +1,37 @@
-## Overview
+## Installation and Setup
 
-This repository contains the necessary files to build and run a Docker container for my Telegram bots. Using Podman, an alternative to Docker, this guide will walk you through the process of building and running your bot container.
+### Initial Setup
 
-## Prerequisites
+1. **Customize Dockerfile**: Before building the container, make sure to replace the constants in square brackets with your own values in the `Dockerfile`.
 
-Before proceeding, ensure you have Podman installed on your system. Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux system.
+2. **Build and Run Container**: To build and run the container, you first need to copy the `Dockerfile` to your local machine. Then, navigate to the directory containing the `Dockerfile` and execute the following commands:
 
-## Getting Started
+   ```shell
+   podman build -t mybots .
+   podman run --name mybots mybots
+   ```
 
-### Step 1: Customize Dockerfile
+### Updating the Container
 
-Replace the constants in square brackets with your specific values in the Dockerfile. These constants are placeholders for your specific configurations.
+To update the container after making changes or pulling updates from the repository, follow these steps:
 
-### Step 2: Build and Run the Container
+1. **Remove the Existing Container and Image**: Before you can rebuild the container, you need to remove the current version. Run these commands to delete the existing container and image:
 
-Navigate to the directory containing your Dockerfile and execute the following commands:
+   ```shell
+   podman rm mybots
+   podman rmi mybots
+   ```
 
-```bash
-podman build -t mybots .
-podman run --name mybots mybots
-```
+2. **Rebuild and Run the Updated Container**: After removing the old container and image, rebuild and run the container using the updated `Dockerfile`:
 
-This will build a Docker container named `mybots` and run it.
+   ```shell
+   podman build -t mybots .
+   podman run --name mybots mybots
+   ```
 
-### Step 3: Reinstalling After Repository Updates
+---
 
-In case you update the repository and need to reinstall the bot, follow these steps to remove the old container and build a new one:
+Note: Ensure that you're always running these commands in the directory containing the `Dockerfile`. This README assumes familiarity with basic Docker/Podman operations. If you're new to Docker or Podman, it might be helpful to refer to their respective documentation for more detailed instructions.
 
-```bash
-podman rm mybots
-podman rmi mybots
-podman build -t mybots .
-podman run --name mybots mybots
-```
+---
 
-This will ensure that your bot is running with the latest updates from your repository.
-
-## Support
-
-For any issues or queries, feel free to open an issue in this repository.
