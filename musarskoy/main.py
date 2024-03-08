@@ -30,7 +30,7 @@ def update_and_reload_responses(new_response):
 def send_random_photo():
     photos = os.listdir(photo_folder)
     if photos:
-        photo = random.choice(photos)
+        photo = choice(photos)
         return os.path.join(photo_folder, photo)
     else:
         return None
