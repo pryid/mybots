@@ -70,7 +70,7 @@ async def echo(client, message):
         if random_number == 2:
             photo_path = send_random_photo()
             if photo_path:
-                await client.send_photo(chat_id=message.chat.id, photo=photo_path)
+                await client.send_photo(chat_id=message.chat.id, photo=photo_path, reply_to_message_id=message.message_id)
             else:
                 await message.reply("Фото отсутствуют.")
         # Проверка случайного числа для ответа без учета ключевых слов
@@ -85,7 +85,7 @@ async def echo(client, message):
         elif check_message_for_keywords_photo(message.text):
             photo_path = send_random_photo()
             if photo_path:
-                await client.send_photo(chat_id=message.chat.id, photo=photo_path)
+                await client.send_photo(chat_id=message.chat.id, photo=photo_path, reply_to_message_id=message.message_id)
             else:
                 await message.reply("Фото отсутствуют.")
         elif message.reply_to_message and message.reply_to_message.from_user.id == client.me.id:
