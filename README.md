@@ -8,7 +8,8 @@
 
    ```shell
    podman build -t mybots .
-   podman run -d --name mybots mybots
+   chmod -R 777 ~/mybots/data
+   podman run -v ~/mybots/data:/app/data:Z -d --name mybots mybots
    ```
 
 ### Updating the Container
@@ -27,7 +28,7 @@ To update the container after making changes or pulling updates from the reposit
 
    ```shell
    podman build -t mybots .
-   podman run -d --name mybots mybots
+   podman run -v ~/mybots/data:/app/data:Z -d --name mybots mybots
    ```
 
 ---
