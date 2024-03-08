@@ -14,10 +14,14 @@ from pyrogram.types import KeyboardButton, ReplyKeyboardMarkup
 # Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID, FEEDBACK_USER_ID
 
+# Файл с данными
+
+user_data_file = '/app/data/tts_checker.json'
+
 app = Client("tts_checker", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 try:
-    with open('user_data.json', 'r') as file:
+    with open(user_data_file, 'r') as file:
         user_data = json.load(file)
 except FileNotFoundError:
     user_data = {}
@@ -101,7 +105,7 @@ async def handle_card_number(client, message, user_id):
         await message.reply_text("Пожалуйста, укажите корректный номер карты.")
         return
     user_data[str(user_id)] = card_number
-    with open('user_data.json', 'w') as file:
+    with open(user_data_file, 'w') as file:
         json.dump(user_data, file)
     del waiting_for_card_number[user_id]
     await message.reply_text(f"Ваш номер карты {card_number} был сохранён. Отправьте 'Баланс' для проверки баланса!")

@@ -8,15 +8,19 @@ from pyrogram import Client, filters
 # Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN
 
+# Путь к файлу с ответами
+
+responses_file = '/app/data/musarskoy_responses.json'
+
 # Загрузка JSON-файла с ответами
-with open("responses.json", "r") as file:
+with open(responses_file, "r") as file:
     data = json.load(file)
     responses = data["responses"]
 
 # Функция для обновления и перезагрузки ответов
 def update_and_reload_responses(new_response):
     responses.append(new_response)
-    with open("responses.json", "w") as file:
+    with open(responses_file, "w") as file:
         json.dump({"responses": responses}, file, ensure_ascii=False, indent=4)
 
 # Создание клиента Pyrogram
