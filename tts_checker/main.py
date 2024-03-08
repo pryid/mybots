@@ -16,7 +16,7 @@ from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID, FEEDBACK_USER
 
 # Файл с данными
 
-user_data_file = '/app/data/tts_checker.json'
+user_data_file = '/app/data/tts_checker/users.json'
 
 app = Client("tts_checker", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
