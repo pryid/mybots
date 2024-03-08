@@ -20,7 +20,7 @@ ExecStart=/usr/bin/podman run \
         --sdnotify=conmon \
         -d \
         --replace \
-        -v /home/pryid/mybots/data:/app/data:Z \
+        -v /home/pryid/mybots_data:/app/data:Z \
         --name mybots mybots
 ExecStop=/usr/bin/podman stop \
         --ignore -t 10 \
