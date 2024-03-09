@@ -8,7 +8,7 @@
 
    ```shell
    podman build -t mybots .
-   chmod -R 777 ~/mybots/data
+   chmod -R 777 ~/mybots_data
    podman run -v ~/mybots_data:/app/data:Z -d --name mybots mybots
    ```
 
