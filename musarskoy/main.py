@@ -14,7 +14,7 @@ from constants import API_ID, API_HASH, BOT_TOKEN
 # Путь к файлу с ответами
 
 musarskoy_id = 1473899765
-admin_id = 152204223
+admin_id = 768483882
 responses_file = '/app/data/musarskoy/responses.json'
 photo_folder = '/app/data/musarskoy/photo'
 
