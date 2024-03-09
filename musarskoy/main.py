@@ -42,12 +42,17 @@ def send_random_photo():
 app = Client("musarskoy", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Функция для сохранения фотографий пациента в папку
-@Client.on_message(filters.photo & filters.user(musarskoy_id) | filters.user(admin_id))
+@app.on_message(filters.photo & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_photo_from_user(client, message: Message):
-    photo = message.photo
-    file_id = photo.file_id
-    save_path = os.path.join(photo_folder, f"{file_id}.jpg")
-    await client.download_media(message, save_path)
+    try:
+        photo = message.photo
+        file_id = photo.file_id
+        save_path = os.path.join(photo_folder, f"{file_id}.jpg")
+        await client.download_media(message, save_path)
+        print(f"Photo saved to {save_path}")  # Логирование
+    except Exception as e:
+        print(f"Error saving photo: {e}")  # Логирование ошибок
+
     
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text):
