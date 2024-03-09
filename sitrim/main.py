@@ -22,16 +22,16 @@ def remove_parameters_from_url(url):
 # Создание клиента Pyrogram
 app = Client("sitrim", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 # Функция для логирования
-def log_action(user, action):
+async def log_action(user, action):
     log_message = f"@{user.username or ''}, {user.first_name or ''} {user.last_name or ''}, ID: {user.id} - {action}"
-    app.send_message(LOG_CHANNEL_ID, log_message)
+    await app.send_message(LOG_CHANNEL_ID, log_message)
 
 @app.on_message(filters.private & filters.command("start"))
 async def start(client, message: Message):
     # Запуск асинхронной задачи обновления правил
     asyncio.create_task(update_rules_periodically())
-    message.reply_text("Hello. Send me a URL to clean it.")
-    log_action(message.from_user, "Started the bot")
+    await message.reply_text("Hello. Send me a URL to clean it.")
+    await log_action(message.from_user, "Started the bot")
 
 @app.on_message(filters.private & filters.regex(r'https?://[^\s]+'))
 def clean_url(client, message: Message):
