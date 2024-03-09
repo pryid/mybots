@@ -6,12 +6,15 @@ from time import sleep
 
 # Внешние библиотеки
 from pyrogram import Client, filters
+from pyrogram.types import Message
 
 # Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN
 
 # Путь к файлу с ответами
 
+musarskoy_id = 1473899765
+admin_id = 152204223
 responses_file = '/app/data/musarskoy/responses.json'
 photo_folder = '/app/data/musarskoy/photo'
 
@@ -26,7 +29,7 @@ def update_and_reload_responses(new_response):
     with open(responses_file, "w") as file:
         json.dump({"responses": responses}, file, ensure_ascii=False, indent=4)
 
-#Функция для отправки рандомных фото из папки
+# Функция для отправки рандомных фото из папки
 def send_random_photo():
     photos = os.listdir(photo_folder)
     if photos:
@@ -38,6 +41,14 @@ def send_random_photo():
 # Создание клиента Pyrogram
 app = Client("musarskoy", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
+# Функция для сохранения фотографий пациента в папку
+@Client.on_message(filters.photo & filters.user(musarskoy_id) | filters.user(admin_id))
+async def save_photo_from_user(client, message: Message):
+    photo = message.photo
+    file_id = photo.file_id
+    save_path = os.path.join(photo_folder, f"{file_id}.jpg")
+    await client.download_media(message, save_path)
+    
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text):
     keywords = ["мусарской", "мусар", "мусор", "министр", "смешной","мотя", "матвей"]
@@ -59,7 +70,7 @@ def check_message_for_keywords_photo(message_text):
 @app.on_message(filters.text)
 async def echo(client, message):
     # Проверка ID пользователя
-    if message.from_user.id == 1473899765:
+    if message.from_user.id == musarskoy_id:
         update_and_reload_responses(message.text)
         #await message.reply("Ваше сообщение добавлено в список ответов.")
     else:
