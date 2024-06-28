@@ -49,9 +49,9 @@ async def save_photo_from_user(client, message: Message):
         file_id = photo.file_id
         save_path = os.path.join(photo_folder, f"{file_id}.jpg")
         await client.download_media(message, save_path)
-        print(f"Photo saved to {save_path}")  # Логирование
+        #print(f"Photo saved to {save_path}")  # Логирование
     except Exception as e:
-        print(f"Error saving photo: {e}")  # Логирование ошибок
+        #print(f"Error saving photo: {e}")  # Логирование ошибок
 
     
 # Функции для проверки наличия ключевых слов в сообщении
