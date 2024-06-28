@@ -71,4 +71,5 @@ async def answer(client, inline_query):
 
 # Запуск бота
 if __name__ == "__main__":
+    asyncio.create_task(update_rules_periodically())  # Запуск периодической задачи
     app.run()
