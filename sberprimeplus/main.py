@@ -2,6 +2,7 @@
 import datetime
 import json
 import re
+import logging
 
 # Внешние библиотеки
 import psutil
@@ -10,6 +11,8 @@ from pyrogram import Client, filters, types
 # Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 
+# Настройка уровня логирования для Pyrogram
+logging.getLogger('pyrogram').setLevel(logging.WARNING)
 
 # Загрузка таблицы замен
 with open('dictionary.json', 'r') as file:

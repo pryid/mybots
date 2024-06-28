@@ -1,9 +1,12 @@
-import re
 import asyncio
+import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineQueryResultArticle, InputTextMessageContent
 from url_cleaner import UrlCleaner
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
+
+# Настройка уровня логирования для Pyrogram
+logging.getLogger('pyrogram').setLevel(logging.WARNING)
 
 # Асинхронная функция для обновления правил
 async def update_rules_periodically():
@@ -11,7 +14,7 @@ async def update_rules_periodically():
         try:
             UrlCleaner().ruler.update_rules()
         except Exception as e:
-            print(f"Error updating rules: {e}")
+            await log_error(f"Error updating rules: {e}")
         await asyncio.sleep(36000)  # Спать 36000 секунд (10 часов)
 
 # Функция для удаления параметров из URL
@@ -19,14 +22,11 @@ def remove_parameters_from_url(url):
     try:
         return UrlCleaner().clean(url)
     except Exception as e:
-        print(f"Error cleaning URL: {e}")
+        asyncio.create_task(log_error(f"Error cleaning URL: {e}"))
         return url
 
 # Создание клиента Pyrogram
 app = Client("sitrim", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
-# Запуск асинхронной задачи обновления правил
-asyncio.create_task(update_rules_periodically())
 
 # Асинхронная функция для логирования
 async def log_action(user, action):
@@ -34,7 +34,14 @@ async def log_action(user, action):
     try:
         await app.send_message(LOG_CHANNEL_ID, log_message)
     except Exception as e:
-        print(f"Error logging action: {e}")
+        await log_error(f"Error logging action: {e}")
+
+async def log_error(error_message):
+    try:
+        await app.send_message(LOG_CHANNEL_ID, error_message)
+    except Exception as e:
+        # В случае ошибки логирования в канал, ничего не делаем
+        pass
 
 @app.on_message(filters.private & filters.command("start"))
 async def start(client, message: Message):
@@ -60,7 +67,7 @@ async def answer(client, inline_query):
             )])
             await log_action(inline_query.from_user, f"Cleaned inline URL: {query} -> {cleaned_url}")
     except Exception as e:
-        await log_action(inline_query.from_user, f"Error in inline query: {e}")
+        await log_error(f"Error in inline query: {e}")
 
 # Запуск бота
 if __name__ == "__main__":

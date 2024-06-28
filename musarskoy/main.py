@@ -1,9 +1,13 @@
 import os
 import json
+import logging
 from random import choice, randint
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
+
+# Настройка уровня логирования для Pyrogram
+logging.getLogger('pyrogram').setLevel(logging.WARNING)
 
 # Путь к файлу с ответами
 musarskoy_id = 1473899765

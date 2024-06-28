@@ -2,6 +2,7 @@
 import json
 import re
 import time
+import logging
 from datetime import timedelta
 
 # Внешние библиотеки
@@ -13,6 +14,9 @@ from pyrogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 # Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID, FEEDBACK_USER_ID
+
+# Настройка уровня логирования для Pyrogram
+logging.getLogger('pyrogram').setLevel(logging.WARNING)
 
 # Файл с данными
 
