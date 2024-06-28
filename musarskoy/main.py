@@ -1,41 +1,51 @@
-# Стандартные библиотеки Python
 import os
 import json
+import logging
 from random import choice, randint
 from time import sleep
-
-# Внешние библиотеки
 from pyrogram import Client, filters
 from pyrogram.types import Message
-
-# Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN
 
 # Путь к файлу с ответами
-
 musarskoy_id = 1473899765
 admin_id = 768483882
 responses_file = '/app/data/musarskoy/responses.json'
 photo_folder = '/app/data/musarskoy/photo'
 
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Загрузка JSON-файла с ответами
-with open(responses_file, "r") as file:
-    data = json.load(file)
-    responses = data["responses"]
+try:
+    with open(responses_file, "r") as file:
+        data = json.load(file)
+        responses = data["responses"]
+except Exception as e:
+    logger.error(f"Error loading responses: {e}")
+    responses = []
 
 # Функция для обновления и перезагрузки ответов
 def update_and_reload_responses(new_response):
     responses.append(new_response)
-    with open(responses_file, "w") as file:
-        json.dump({"responses": responses}, file, ensure_ascii=False, indent=4)
+    try:
+        with open(responses_file, "w") as file:
+            json.dump({"responses": responses}, file, ensure_ascii=False, indent=4)
+    except Exception as e:
+        logger.error(f"Error saving responses: {e}")
 
 # Функция для отправки рандомных фото из папки
 def send_random_photo():
-    photos = os.listdir(photo_folder)
-    if photos:
-        photo = choice(photos)
-        return os.path.join(photo_folder, photo)
-    else:
+    try:
+        photos = os.listdir(photo_folder)
+        if photos:
+            photo = choice(photos)
+            return os.path.join(photo_folder, photo)
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"Error listing photos: {e}")
         return None
 
 # Создание клиента Pyrogram
@@ -49,11 +59,10 @@ async def save_photo_from_user(client, message: Message):
         file_id = photo.file_id
         save_path = os.path.join(photo_folder, f"{file_id}.jpg")
         await client.download_media(message, save_path)
-        #print(f"Photo saved to {save_path}")  # Логирование
+        #logger.info(f"Photo saved to {save_path}")  # Логирование
     except Exception as e:
-        #print(f"Error saving photo: {e}")  # Логирование ошибок
+        logger.error(f"Error saving photo: {e}")  # Логирование ошибок
 
-    
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text):
     keywords = ["мусарской", "мусар", "мусор", "министр", "смешной","мотя", "матвей"]
@@ -90,7 +99,7 @@ async def echo(client, message):
             else:
                 await message.reply("Фото отсутствуют.")
         # Проверка случайного числа для ответа без учета ключевых слов
-        if random_number == 1:
+        elif random_number == 1:
             response = choice(responses)
             await message.reply(response)
         # Проверка для ответа с учетом ключевых слов    
