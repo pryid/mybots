@@ -13,7 +13,7 @@ from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 async def update_rules_periodically():
     while True:
         UrlCleaner().ruler.update_rules()
-        await asyncio.sleep(3600)  # Спать 3600 секунд (1 час)
+        await asyncio.sleep(36000)  # Спать 36000 секунд (10 часов)
 
 # Функция для удаления параметров из URL
 def remove_parameters_from_url(url):
@@ -21,6 +21,7 @@ def remove_parameters_from_url(url):
 
 # Создание клиента Pyrogram
 app = Client("sitrim", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+asyncio.create_task(update_rules_periodically())  # Запуск асинхронной задачи обновления правил
 
 # Асинхронная функция для логирования
 async def log_action(user, action):
@@ -29,7 +30,6 @@ async def log_action(user, action):
 
 @app.on_message(filters.private & filters.command("start"))
 async def start(client, message: Message):
-    asyncio.create_task(update_rules_periodically())  # Запуск асинхронной задачи обновления правил
     await message.reply_text("Hello. Send me a URL to clean it.")
     await log_action(message.from_user, "Started the bot")
 
