@@ -1,13 +1,10 @@
-# Стандартные библиотеки Python
-import re, asyncio, logging
-
-# Внешние библиотеки
+import re
+import logging
+import asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineQueryResultArticle, InputTextMessageContent
 from url_cleaner import UrlCleaner
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
-# Локальные импорты
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 
 logging.getLogger('pyrogram').setLevel(logging.WARNING)
@@ -16,8 +13,7 @@ logging.getLogger('apscheduler').setLevel(logging.WARNING)
 
 # Асинхронная функция для обновления правил
 async def update_rules_periodically():
-    while True:
-        UrlCleaner().ruler.update_rules()
+    UrlCleaner().ruler.update_rules()
 
 # Функция для удаления параметров из URL
 def remove_parameters_from_url(url):
@@ -33,7 +29,6 @@ async def log_action(user, action):
 
 @app.on_message(filters.private & filters.command("start"))
 async def start(client, message: Message):
-    asyncio.create_task(update_rules_periodically())  # Запуск асинхронной задачи обновления правил
     await message.reply_text("Hello. Send me a URL to clean it.")
     await log_action(message.from_user, "Started the bot")
 
@@ -56,12 +51,11 @@ async def answer(client, inline_query):
             )])
             await log_action(inline_query.from_user, f"Cleaned inline URL: {query} -> {cleaned_url}")
     except Exception as e:
-        await log_action(inline_query.from_user, f"Error in inline query: {e}")
+        await log_action(inline_query.from_user if inline_query.from_user else "Unknown", f"Error in inline query: {e}")
 
-# Запуск бота
+if __name__ == "__main__":
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(update_rules_periodically, "interval", seconds=36000)
+    scheduler.start()
 
-scheduler = AsyncIOScheduler()
-scheduler.add_job(update_rules_periodically, "interval", seconds=36000)
-scheduler.start()
-
-app.run()
+    app.run()
