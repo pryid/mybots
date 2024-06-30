@@ -1,10 +1,10 @@
 import re
-import logging
 import asyncio
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineQueryResultArticle, InputTextMessageContent
 from url_cleaner import UrlCleaner
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 
 logging.getLogger('pyrogram').setLevel(logging.WARNING)
@@ -54,8 +54,16 @@ async def answer(client, inline_query):
         await log_action(inline_query.from_user if inline_query.from_user else "Unknown", f"Error in inline query: {e}")
 
 if __name__ == "__main__":
+    # Запуск планировщика задач
     scheduler = AsyncIOScheduler()
+
+    # Создание асинхронного события для однократного выполнения update_rules_periodically при старте
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(update_rules_periodically())
+
+    # Добавление задачи в планировщик
     scheduler.add_job(update_rules_periodically, "interval", seconds=36000)
     scheduler.start()
 
+    # Запуск бота
     app.run()
