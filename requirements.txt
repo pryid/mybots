@@ -7,3 +7,4 @@ bs4==0.0.1
 lxml==4.9.3
 psutil==5.9.6
 url-cleaner==0.1.5
+APScheduler==3.10.4
