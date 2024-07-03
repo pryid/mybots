@@ -1,9 +1,11 @@
 import os
 import json
 import logging
+import asyncio  # Добавлен импорт asyncio для использования задержек
 from random import choice, randint
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from pyrogram.enums import ChatAction
 from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
 
 # Настройка уровня логирования для Pyrogram
@@ -21,7 +23,6 @@ try:
         data = json.load(file)
         responses = data["responses"]
 except Exception as e:
-    # Логирование ошибки в канал
     async def log_error_to_channel(client, message):
         await client.send_message(LOG_CHANNEL_ID, f"Error loading responses: {e}")
     responses = []
@@ -32,7 +33,6 @@ try:
         data = json.load(file)
         photo_ids = data.get("photo_ids", [])
 except Exception as e:
-    # Логирование ошибки в канал
     async def log_error_to_channel(client, message):
         await client.send_message(LOG_CHANNEL_ID, f"Error loading photo_ids: {e}")
     photo_ids = []
@@ -44,7 +44,6 @@ def update_and_reload_responses(new_response):
         with open(responses_file, "w") as file:
             json.dump({"responses": responses}, file, ensure_ascii=False, indent=4)
     except Exception as e:
-        # Логирование ошибки в канал
         async def log_error_to_channel(client, message):
             await client.send_message(LOG_CHANNEL_ID, f"Error saving responses: {e}")
 
@@ -55,23 +54,26 @@ def update_and_reload_photo_ids(new_photo_id):
         with open(photos_file, "w") as file:
             json.dump({"photo_ids": photo_ids}, file, ensure_ascii=False, indent=4)
     except Exception as e:
-        # Логирование ошибки в канал
         async def log_error_to_channel(client, message):
             await client.send_message(LOG_CHANNEL_ID, f"Error saving photo_ids: {e}")
 
 # Функция для отправки рандомных фото из списка photo_ids
-def send_random_photo_id():
+async def send_random_photo_id(client, message):
     try:
         if photo_ids:
             photo_id = choice(photo_ids)
-            return photo_id
+            await asyncio.sleep(1)  # Задержка 1 секунда
+            await client.send_chat_action(message.chat.id, ChatAction.UPLOAD_PHOTO)
+            await asyncio.sleep(1)  # Задержка 1 секунда
+            await message.reply_photo(photo_id)
+            await asyncio.sleep(1)  # Задержка 1 секунда
+            await client.send_message(LOG_CHANNEL_ID, f"Sent random photo: {photo_id}")
         else:
-            return None
+            await message.reply("Фото отсутствуют.")
+            await asyncio.sleep(1)  # Задержка 1 секунда
+            await client.send_message(LOG_CHANNEL_ID, "No photo IDs available to send.")
     except Exception as e:
-        # Логирование ошибки в канал
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error selecting random photo_id: {e}")
-        return None
+        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random photo_id: {e}")
 
 # Создание клиента Pyrogram
 app = Client("musarskoy", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -83,16 +85,14 @@ async def save_photo_from_user(client, message: Message):
         photo = message.photo
         file_id = photo.file_id
         update_and_reload_photo_ids(file_id)
-        # Логирование успешного сохранения photo_id в канал
         await client.send_message(LOG_CHANNEL_ID, f"Photo ID saved: {file_id}")
     except Exception as e:
-        # Логирование ошибки в канал
         await client.send_message(LOG_CHANNEL_ID, f"Error saving photo ID: {e}")
 
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text):
     keywords = ["мусарской", "мусар", "мусор", "министр", "смешной","мотя", "матвей"]
-    message_text = message_text.lower()  # Приводим текст сообщения к нижнему регистру
+    message_text = message_text.lower()
     for keyword in keywords:
         if keyword in message_text:
             return True
@@ -113,47 +113,39 @@ async def echo(client, message):
     if message.from_user.id == musarskoy_id:
         update_and_reload_responses(message.text)
         await client.send_message(LOG_CHANNEL_ID, f"New response added: {message.text}")
+        await asyncio.sleep(1)  # Задержка 1 секунда
     else:
         # Генерация случайного числа от 1 до 100
         random_number = randint(1, 100)
 
         # Проверка случайного числа для отправки фото
         if random_number == 2:
-            photo_id = send_random_photo_id()
-            if photo_id:
-                await message.reply_chat_action("upload_photo")
-                await message.reply_photo(photo_id)
-                await client.send_message(LOG_CHANNEL_ID, f"Sent random photo: {photo_id}")
-            else:
-                await message.reply("Фото отсутствуют.")
-                await client.send_message(LOG_CHANNEL_ID, "No photo IDs available to send.")
+            await send_random_photo_id(client, message)
         # Проверка случайного числа для ответа без учета ключевых слов
         elif random_number == 1:
             response = choice(responses)
-            await message.reply_chat_action("typing")
+            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+            await asyncio.sleep(1)  # Задержка 1 секунда
             await message.reply(response)
+            await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_message(LOG_CHANNEL_ID, f"Sent random response: {response}")
         # Проверка для ответа с учетом ключевых слов    
         elif check_message_for_keywords(message.text):
             response = choice(responses)
-            await message.reply_chat_action("typing")
+            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+            await asyncio.sleep(1)  # Задержка 1 секунда
             await message.reply(response)
+            await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_message(LOG_CHANNEL_ID, f"Sent keyword-based response: {response}")
         # Проверка для ответа фото с учетом ключевых слов    
         elif check_message_for_keywords_photo(message.text):
-            photo_id = send_random_photo_id()
-            if photo_id:
-                await message.reply_chat_action("upload_photo")
-                await message.reply_photo(photo_id)
-                await client.send_message(LOG_CHANNEL_ID, f"Sent keyword-based photo: {photo_id}")
-            else:
-                await message.reply("Фото отсутствуют.")
-                await client.send_message(LOG_CHANNEL_ID, "No photo IDs available to send for keyword-based response.")
+            await send_random_photo_id(client, message)
         elif message.reply_to_message and message.reply_to_message.from_user.id == client.me.id:
-            # Если сообщение является ответом на сообщение бота
             response = choice(responses)
-            await message.reply_chat_action("typing")
+            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+            await asyncio.sleep(1)  # Задержка 1 секунда
             await message.reply(response)
+            await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_message(LOG_CHANNEL_ID, f"Replied to bot's message: {response}")
 
 # Запуск бота
