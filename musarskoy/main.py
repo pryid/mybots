@@ -120,6 +120,9 @@ async def save_photo_from_user(client, message: Message):
         file_id = photo.file_id
         update_and_reload_photo_ids(file_id)
         await client.send_message(LOG_CHANNEL_ID, f"Photo ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Photo caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving photo ID: {e}")
 
@@ -130,6 +133,9 @@ async def save_voice_from_user(client, message: Message):
         file_id = voice.file_id
         update_and_reload_voice_ids(file_id)
         await client.send_message(LOG_CHANNEL_ID, f"Voice ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Voice caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving voice ID: {e}")
 
@@ -140,6 +146,9 @@ async def save_video_note_from_user(client, message: Message):
         file_id = video_note.file_id
         update_and_reload_video_note_ids(file_id)
         await client.send_message(LOG_CHANNEL_ID, f"Video note ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Video note caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving video note ID: {e}")
 
@@ -150,6 +159,9 @@ async def save_video_from_user(client, message: Message):
         file_id = video.file_id
         update_and_reload_video_ids(file_id)
         await client.send_message(LOG_CHANNEL_ID, f"Video ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Video caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving video ID: {e}")
 
@@ -160,6 +172,9 @@ async def save_sticker_from_user(client, message: Message):
         file_id = sticker.file_id
         update_and_reload_sticker_ids(file_id)
         await client.send_message(LOG_CHANNEL_ID, f"Sticker ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Sticker caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving sticker ID: {e}")
 
@@ -170,6 +185,9 @@ async def save_music_from_user(client, message: Message):
         file_id = music.file_id
         update_and_reload_music_ids(file_id)
         await client.send_message(LOG_CHANNEL_ID, f"Music ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Music caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving music ID: {e}")
 
@@ -186,8 +204,12 @@ def check_message_for_keywords(message_text, keywords):
 async def echo(client, message):
     # Проверка ID пользователя
     if message.from_user.id == musarskoy_id:
-        update_and_reload_responses(message.text)
-        await client.send_message(LOG_CHANNEL_ID, f"New response added: {message.text}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"New response added from caption: {message.caption}")
+        else:
+            update_and_reload_responses(message.text)
+            await client.send_message(LOG_CHANNEL_ID, f"New response added: {message.text}")
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
         # Генерация случайного числа от 1 до 100
