@@ -65,7 +65,7 @@ async def send_random_photo_id(client, message):
             await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_chat_action(message.chat.id, ChatAction.UPLOAD_PHOTO)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await message.reply_photo(photo_id)
+            await client.send_cached_media(message.chat.id, photo_id, reply_to_message_id=message.id)
             await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_message(LOG_CHANNEL_ID, f"Sent random photo: {photo_id}")
         else:
@@ -91,7 +91,7 @@ async def save_photo_from_user(client, message: Message):
 
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text):
-    keywords = ["мусарской", "мусар", "мусор", "министр", "смешной","мотя", "матвей"]
+    keywords = ["мусар", "мусор", "министр", "смешной","мотя", "матвей"]
     message_text = message_text.lower()
     for keyword in keywords:
         if keyword in message_text:
