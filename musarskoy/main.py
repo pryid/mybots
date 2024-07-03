@@ -23,251 +23,96 @@ stickers_file = '/app/data/musarskoy/stickers.json'
 music_file = '/app/data/musarskoy/music.json'
 
 # Загрузка JSON-файлов
-try:
-    with open(responses_file, "r") as file:
-        data = json.load(file)
-        responses = data["responses"]
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading responses: {e}")
-    responses = []
+def load_json_file(file_path, default_data):
+    try:
+        with open(file_path, "r") as file:
+            return json.load(file)
+    except Exception as e:
+        async def log_error_to_channel(client, message):
+            await client.send_message(LOG_CHANNEL_ID, f"Error loading {file_path}: {e}")
+        return default_data
 
-try:
-    with open(photos_file, "r") as file:
-        data = json.load(file)
-        photo_ids = data.get("photo_ids", [])
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading photo_ids: {e}")
-    photo_ids = []
+responses_data = load_json_file(responses_file, {"responses": []})
+responses = responses_data["responses"]
 
-try:
-    with open(voices_file, "r") as file:
-        data = json.load(file)
-        voice_ids = data.get("voice_ids", [])
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading voice_ids: {e}")
-    voice_ids = []
+photos_data = load_json_file(photos_file, {"photo_ids": []})
+photo_ids = photos_data.get("photo_ids", [])
 
-try:
-    with open(video_notes_file, "r") as file:
-        data = json.load(file)
-        video_note_ids = data.get("video_note_ids", [])
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading video_note_ids: {e}")
-    video_note_ids = []
+voices_data = load_json_file(voices_file, {"voice_ids": []})
+voice_ids = voices_data.get("voice_ids", [])
 
-try:
-    with open(videos_file, "r") as file:
-        data = json.load(file)
-        video_ids = data.get("video_ids", [])
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading video_ids: {e}")
-    video_ids = []
+video_notes_data = load_json_file(video_notes_file, {"video_note_ids": []})
+video_note_ids = video_notes_data.get("video_note_ids", [])
 
-try:
-    with open(stickers_file, "r") as file:
-        data = json.load(file)
-        sticker_ids = data.get("sticker_ids", [])
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading sticker_ids: {e}")
-    sticker_ids = []
+videos_data = load_json_file(videos_file, {"video_ids": []})
+video_ids = videos_data.get("video_ids", [])
 
-try:
-    with open(music_file, "r") as file:
-        data = json.load(file)
-        music_ids = data.get("music_ids", [])
-except Exception as e:
-    async def log_error_to_channel(client, message):
-        await client.send_message(LOG_CHANNEL_ID, f"Error loading music_ids: {e}")
-    music_ids = []
+stickers_data = load_json_file(stickers_file, {"sticker_ids": []})
+sticker_ids = stickers_data.get("sticker_ids", [])
 
-# Функция для обновления и перезагрузки ответов
+music_data = load_json_file(music_file, {"music_ids": []})
+music_ids = music_data.get("music_ids", [])
+
+# Функция для обновления и перезагрузки JSON-файлов
+def update_and_reload_json_file(file_path, data):
+    try:
+        with open(file_path, "w") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+    except Exception as e:
+        async def log_error_to_channel(client, message):
+            await client.send_message(LOG_CHANNEL_ID, f"Error saving {file_path}: {e}")
+
+# Функции для обновления данных
 def update_and_reload_responses(new_response):
     responses.append(new_response)
-    try:
-        with open(responses_file, "w") as file:
-            json.dump({"responses": responses}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving responses: {e}")
+    update_and_reload_json_file(responses_file, {"responses": responses})
 
-# Функция для обновления и перезагрузки photo_ids
 def update_and_reload_photo_ids(new_photo_id):
     photo_ids.append(new_photo_id)
-    try:
-        with open(photos_file, "w") as file:
-            json.dump({"photo_ids": photo_ids}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving photo_ids: {e}")
+    update_and_reload_json_file(photos_file, {"photo_ids": photo_ids})
 
-# Функция для обновления и перезагрузки voice_ids
 def update_and_reload_voice_ids(new_voice_id):
     voice_ids.append(new_voice_id)
-    try:
-        with open(voices_file, "w") as file:
-            json.dump({"voice_ids": voice_ids}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving voice_ids: {e}")
+    update_and_reload_json_file(voices_file, {"voice_ids": voice_ids})
 
-# Функция для обновления и перезагрузки video_note_ids
 def update_and_reload_video_note_ids(new_video_note_id):
     video_note_ids.append(new_video_note_id)
-    try:
-        with open(video_notes_file, "w") as file:
-            json.dump({"video_note_ids": video_note_ids}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving video_note_ids: {e}")
+    update_and_reload_json_file(video_notes_file, {"video_note_ids": video_note_ids})
 
-# Функция для обновления и перезагрузки video_ids
 def update_and_reload_video_ids(new_video_id):
     video_ids.append(new_video_id)
-    try:
-        with open(videos_file, "w") as file:
-            json.dump({"video_ids": video_ids}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving video_ids: {e}")
+    update_and_reload_json_file(videos_file, {"video_ids": video_ids})
 
-# Функция для обновления и перезагрузки sticker_ids
 def update_and_reload_sticker_ids(new_sticker_id):
     sticker_ids.append(new_sticker_id)
-    try:
-        with open(stickers_file, "w") as file:
-            json.dump({"sticker_ids": sticker_ids}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving sticker_ids: {e}")
+    update_and_reload_json_file(stickers_file, {"sticker_ids": sticker_ids})
 
-# Функция для обновления и перезагрузки music_ids
 def update_and_reload_music_ids(new_music_id):
     music_ids.append(new_music_id)
-    try:
-        with open(music_file, "w") as file:
-            json.dump({"music_ids": music_ids}, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving music_ids: {e}")
+    update_and_reload_json_file(music_file, {"music_ids": music_ids})
 
-# Функция для отправки рандомных фото из списка photo_ids
-async def send_random_photo_id(client, message):
+# Функции для отправки рандомных данных
+async def send_random_item(client, message, item_list, chat_action, log_action, no_items_message):
     try:
-        if photo_ids:
-            photo_id = choice(photo_ids)
+        if item_list:
+            item_id = choice(item_list)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_chat_action(message.chat.id, ChatAction.UPLOAD_PHOTO)
+            await client.send_chat_action(message.chat.id, chat_action)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_cached_media(message.chat.id, photo_id, reply_to_message_id=message.id)
+            await client.send_cached_media(message.chat.id, item_id, reply_to_message_id=message.id)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random photo: {photo_id}")
+            await client.send_message(LOG_CHANNEL_ID, f"{log_action}: {item_id}")
         else:
-            await message.reply("Фото отсутствуют.")
+            await message.reply(no_items_message)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, "No photo IDs available to send.")
+            await client.send_message(LOG_CHANNEL_ID, f"No {log_action} available to send.")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random photo_id: {e}")
-
-# Функция для отправки рандомных голосовых сообщений из списка voice_ids
-async def send_random_voice_id(client, message):
-    try:
-        if voice_ids:
-            voice_id = choice(voice_ids)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_chat_action(message.chat.id, ChatAction.RECORD_AUDIO)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_cached_media(message.chat.id, voice_id, reply_to_message_id=message.id)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random voice: {voice_id}")
-        else:
-            await message.reply("Голосовые сообщения отсутствуют.")
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, "No voice IDs available to send.")
-    except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random voice_id: {e}")
-
-# Функция для отправки рандомных видеозаметок из списка video_note_ids
-async def send_random_video_note_id(client, message):
-    try:
-        if video_note_ids:
-            video_note_id = choice(video_note_ids)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_chat_action(message.chat.id, ChatAction.RECORD_VIDEO_NOTE)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_cached_media(message.chat.id, video_note_id, reply_to_message_id=message.id)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random video note: {video_note_id}")
-        else:
-            await message.reply("Видеозаметки отсутствуют.")
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, "No video note IDs available to send.")
-    except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random video_note_id: {e}")
-
-# Функция для отправки рандомных видео из списка video_ids
-async def send_random_video_id(client, message):
-    try:
-        if video_ids:
-            video_id = choice(video_ids)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_chat_action(message.chat.id, ChatAction.UPLOAD_VIDEO)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_cached_media(message.chat.id, video_id, reply_to_message_id=message.id)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random video: {video_id}")
-        else:
-            await message.reply("Видео отсутствуют.")
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, "No video IDs available to send.")
-    except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random video_id: {e}")
-
-# Функция для отправки рандомных стикеров из списка sticker_ids
-async def send_random_sticker_id(client, message):
-    try:
-        if sticker_ids:
-            sticker_id = choice(sticker_ids)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_chat_action(message.chat.id, ChatAction.CHOOSE_STICKER)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_sticker(message.chat.id, sticker_id, reply_to_message_id=message.id)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random sticker: {sticker_id}")
-        else:
-            await message.reply("Стикеры отсутствуют.")
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, "No sticker IDs available to send.")
-    except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random sticker_id: {e}")
-
-# Функция для отправки рандомных музыкальных сообщений из списка music_ids
-async def send_random_music_id(client, message):
-    try:
-        if music_ids:
-            music_id = choice(music_ids)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_chat_action(message.chat.id, ChatAction.UPLOAD_AUDIO)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_cached_media(message.chat.id, music_id, reply_to_message_id=message.id)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random music: {music_id}")
-        else:
-            await message.reply("Музыкальные сообщения отсутствуют.")
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, "No music IDs available to send.")
-    except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting random music_id: {e}")
+        await client.send_message(LOG_CHANNEL_ID, f"Error selecting {log_action}: {e}")
 
 # Создание клиента Pyrogram
 app = Client("musarskoy", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# Функция для сохранения file_id фотографий пациента
+# Функция для сохранения file_id медиафайлов пациента
 @app.on_message(filters.photo & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_photo_from_user(client, message: Message):
     try:
@@ -278,7 +123,6 @@ async def save_photo_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving photo ID: {e}")
 
-# Функция для сохранения file_id голосовых сообщений пациента
 @app.on_message(filters.voice & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_voice_from_user(client, message: Message):
     try:
@@ -289,7 +133,6 @@ async def save_voice_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving voice ID: {e}")
 
-# Функция для сохранения file_id видеозаметок пациента
 @app.on_message(filters.video_note & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_video_note_from_user(client, message: Message):
     try:
@@ -300,7 +143,6 @@ async def save_video_note_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving video note ID: {e}")
 
-# Функция для сохранения file_id видео пациента
 @app.on_message(filters.video & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_video_from_user(client, message: Message):
     try:
@@ -311,7 +153,6 @@ async def save_video_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving video ID: {e}")
 
-# Функция для сохранения file_id стикеров пациента
 @app.on_message(filters.sticker & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_sticker_from_user(client, message: Message):
     try:
@@ -322,7 +163,6 @@ async def save_sticker_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving sticker ID: {e}")
 
-# Функция для сохранения file_id музыкальных сообщений пациента
 @app.on_message(filters.audio & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_music_from_user(client, message: Message):
     try:
@@ -333,66 +173,8 @@ async def save_music_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving music ID: {e}")
 
-
 # Функции для проверки наличия ключевых слов в сообщении
-def check_message_for_keywords(message_text):
-    keywords = ["мусар", "мусор", "министр", "смешной", "мотя", "матвей"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_photo(message_text):
-    keywords = ["чмоня"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_voice(message_text):
-    keywords = ["помяукай"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_video_note(message_text):
-    keywords = ["блинчик"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_video(message_text):
-    keywords = ["видярик"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_sticker(message_text):
-    keywords = ["стикос"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_music(message_text):
-    keywords = ["музло"]
-    message_text = message_text.lower()
-    for keyword in keywords:
-        if keyword in message_text:
-            return True
-    return False
-
-def check_message_for_keywords_reaction(message_text):
-    keywords = ["шлюха", "проститутка"]
+def check_message_for_keywords(message_text, keywords):
     message_text = message_text.lower()
     for keyword in keywords:
         if keyword in message_text:
@@ -411,62 +193,40 @@ async def echo(client, message):
         # Генерация случайного числа от 1 до 100
         random_number = randint(1, 100)
 
-        # Проверка случайного числа для отправки фото
+        # Проверка случайного числа для отправки различных типов медиа
         if random_number == 2:
-            await send_random_photo_id(client, message)
-        # Проверка случайного числа для отправки голосового сообщения
+            await send_random_item(client, message, photo_ids, ChatAction.UPLOAD_PHOTO, "Sent random photo", "Фото отсутствуют.")
         elif random_number == 3:
-            await send_random_voice_id(client, message)
-        # Проверка случайного числа для отправки видеозаметки
+            await send_random_item(client, message, voice_ids, ChatAction.RECORD_AUDIO, "Sent random voice", "Голосовые сообщения отсутствуют.")
         elif random_number == 4:
-            await send_random_video_note_id(client, message)
-        # Проверка случайного числа для отправки видео
+            await send_random_item(client, message, video_note_ids, ChatAction.RECORD_VIDEO_NOTE, "Sent random video note", "Видеозаметки отсутствуют.")
         elif random_number == 5:
-            await send_random_video_id(client, message)
-        # Проверка случайного числа для отправки стикера
+            await send_random_item(client, message, video_ids, ChatAction.UPLOAD_VIDEO, "Sent random video", "Видео отсутствуют.")
         elif random_number == 6:
-            await send_random_sticker_id(client, message)
-        # Проверка случайного числа для отправки музыки
+            await send_random_item(client, message, sticker_ids, ChatAction.CHOOSE_STICKER, "Sent random sticker", "Стикеры отсутствуют.")
         elif random_number == 7:
-            await send_random_music_id(client, message)
-        # Проверка случайного числа для ответа без учета ключевых слов
-        elif random_number == 1:
+            await send_random_item(client, message, music_ids, ChatAction.UPLOAD_AUDIO, "Sent random music", "Музыкальные сообщения отсутствуют.")
+        elif random_number == 1 or check_message_for_keywords(message.text, ["мусар", "мусор", "министр", "смешной", "мотя", "матвей"]):
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
             await asyncio.sleep(1)  # Задержка 1 секунда
             await message.reply(response)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent random response: {response}")
-        # Проверка для ответа с учетом ключевых слов    
-        elif check_message_for_keywords(message.text):
-            response = choice(responses)
-            await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await message.reply(response)
-            await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent keyword-based response: {response}")
-        # Проверка для ответа фото с учетом ключевых слов    
-        elif check_message_for_keywords_photo(message.text):
-            await send_random_photo_id(client, message)
-        # Проверка для ответа голосовым сообщением с учетом ключевых слов
-        elif check_message_for_keywords_voice(message.text):
-            await send_random_voice_id(client, message)
-        # Проверка для ответа видеозаметкой с учетом ключевых слов
-        elif check_message_for_keywords_video_note(message.text):
-            await send_random_video_note_id(client, message)
-        # Проверка для ответа видео с учетом ключевых слов
-        elif check_message_for_keywords_video(message.text):
-            await send_random_video_id(client, message)
-        # Проверка для ответа стикером с учетом ключевых слов
-        elif check_message_for_keywords_sticker(message.text):
-            await send_random_sticker_id(client, message)
-        # Проверка для ответа музыкой с учетом ключевых слов
-        elif check_message_for_keywords_music(message.text):
-            await send_random_music_id(client, message)
-        # Проверка для реакции на сообщения с определенными ключевыми словами
-        elif check_message_for_keywords_reaction(message.text):
+            await client.send_message(LOG_CHANNEL_ID, f"Sent response: {response}")
+        elif check_message_for_keywords(message.text, ["чмоня"]):
+            await send_random_item(client, message, photo_ids, ChatAction.UPLOAD_PHOTO, "Sent random photo", "Фото отсутствуют.")
+        elif check_message_for_keywords(message.text, ["помяукай"]):
+            await send_random_item(client, message, voice_ids, ChatAction.RECORD_AUDIO, "Sent random voice", "Голосовые сообщения отсутствуют.")
+        elif check_message_for_keywords(message.text, ["блинчик"]):
+            await send_random_item(client, message, video_note_ids, ChatAction.RECORD_VIDEO_NOTE, "Sent random video note", "Видеозаметки отсутствуют.")
+        elif check_message_for_keywords(message.text, ["видярик"]):
+            await send_random_item(client, message, video_ids, ChatAction.UPLOAD_VIDEO, "Sent random video", "Видео отсутствуют.")
+        elif check_message_for_keywords(message.text, ["стикос"]):
+            await send_random_item(client, message, sticker_ids, ChatAction.CHOOSE_STICKER, "Sent random sticker", "Стикеры отсутствуют.")
+        elif check_message_for_keywords(message.text, ["музло"]):
+            await send_random_item(client, message, music_ids, ChatAction.UPLOAD_AUDIO, "Sent random music", "Музыкальные сообщения отсутствуют.")
+        elif check_message_for_keywords(message.text, ["шлюха", "проститутка"]):
             await client.send_reaction(message.chat.id, message.id, emoji="👍", big=True)
-        # Проверка для ответа на сообщения, которые являются ответом на сообщение бота
         elif message.reply_to_message and message.reply_to_message.from_user.id == client.me.id:
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
