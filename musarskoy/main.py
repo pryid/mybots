@@ -106,6 +106,14 @@ def check_message_for_keywords_photo(message_text):
             return True
     return False
 
+def check_message_for_keywords_reaction(message_text):
+    keywords = ["шлюха", "проститутка"]
+    message_text = message_text.lower()
+    for keyword in keywords:
+        if keyword in message_text:
+            return True
+    return False
+
 # Обработчик сообщений
 @app.on_message(filters.text)
 async def echo(client, message):
@@ -140,6 +148,8 @@ async def echo(client, message):
         # Проверка для ответа фото с учетом ключевых слов    
         elif check_message_for_keywords_photo(message.text):
             await send_random_photo_id(client, message)
+        elif check_message_for_keywords_reaction(message.text):
+            await client.send_reaction(message.chat.id, message.id, emoji="👍", big=True)
         elif message.reply_to_message and message.reply_to_message.from_user.id == client.me.id:
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
