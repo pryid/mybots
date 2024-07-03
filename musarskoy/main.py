@@ -21,6 +21,7 @@ video_notes_file = '/app/data/musarskoy/video_notes.json'
 videos_file = '/app/data/musarskoy/videos.json'
 stickers_file = '/app/data/musarskoy/stickers.json'
 music_file = '/app/data/musarskoy/music.json'
+animations_file = '/app/data/musarskoy/animations.json'
 
 # Загрузка JSON-файлов
 def load_json_file(file_path, default_data):
@@ -52,6 +53,9 @@ sticker_ids = stickers_data.get("sticker_ids", [])
 
 music_data = load_json_file(music_file, {"music_ids": []})
 music_ids = music_data.get("music_ids", [])
+
+animations_data = load_json_file(animations_file, {"animation_ids": []})
+animation_ids = animations_data.get("animation_ids", [])
 
 # Функция для обновления и перезагрузки JSON-файлов
 def update_and_reload_json_file(file_path, data):
@@ -90,6 +94,10 @@ def update_and_reload_sticker_ids(new_sticker_id):
 def update_and_reload_music_ids(new_music_id):
     music_ids.append(new_music_id)
     update_and_reload_json_file(music_file, {"music_ids": music_ids})
+
+def update_and_reload_animation_ids(new_animation_id):
+    animation_ids.append(new_animation_id)
+    update_and_reload_json_file(animations_file, {"animation_ids": animation_ids})
 
 # Функции для отправки рандомных данных
 async def send_random_item(client, message, item_list, chat_action, log_action, no_items_message):
@@ -191,6 +199,19 @@ async def save_music_from_user(client, message: Message):
     except Exception as e:
         await client.send_message(LOG_CHANNEL_ID, f"Error saving music ID: {e}")
 
+@app.on_message(filters.animation & (filters.user(musarskoy_id) | filters.user(admin_id)))
+async def save_animation_from_user(client, message: Message):
+    try:
+        animation = message.animation
+        file_id = animation.file_id
+        update_and_reload_animation_ids(file_id)
+        await client.send_message(LOG_CHANNEL_ID, f"Animation ID saved: {file_id}")
+        if message.caption:
+            update_and_reload_responses(message.caption)
+            await client.send_message(LOG_CHANNEL_ID, f"Animation caption added as response: {message.caption}")
+    except Exception as e:
+        await client.send_message(LOG_CHANNEL_ID, f"Error saving animation ID: {e}")
+
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text, keywords):
     message_text = message_text.lower()
@@ -228,6 +249,8 @@ async def echo(client, message):
             await send_random_item(client, message, sticker_ids, ChatAction.CHOOSE_STICKER, "Sent random sticker", "Стикеры отсутствуют.")
         elif random_number == 7:
             await send_random_item(client, message, music_ids, ChatAction.UPLOAD_AUDIO, "Sent random music", "Музыкальные сообщения отсутствуют.")
+        elif random_number == 8:
+            await send_random_item(client, message, animation_ids, ChatAction.UPLOAD_PHOTO, "Sent random animation", "Анимации отсутствуют.")
         elif random_number == 1 or check_message_for_keywords(message.text, ["мусар", "мусор", "министр", "смешной", "мотя", "матвей"]):
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
@@ -246,7 +269,9 @@ async def echo(client, message):
         elif check_message_for_keywords(message.text, ["стикос"]):
             await send_random_item(client, message, sticker_ids, ChatAction.CHOOSE_STICKER, "Sent random sticker", "Стикеры отсутствуют.")
         elif check_message_for_keywords(message.text, ["музло"]):
-            await send_random_item(client, message, music_ids, ChatAction.UPLOAD_AUDIO, "Sent random music", "Музыкальные сообщения отсутствуют.")
+            await send_random_item(client, message, music_ids, ChatAction.UPLOAD_DOCUMENT, "Sent random music", "Музыкальные сообщения отсутствуют.")
+        elif check_message_for_keywords(message.text, ["дрыга"]):
+            await send_random_item(client, message, animation_ids, ChatAction.UPLOAD_VIDEO, "Sent random animation", "Анимации отсутствуют.")
         elif check_message_for_keywords(message.text, ["шлюха", "проститутка"]):
             await client.send_reaction(message.chat.id, message.id, emoji="👍", big=True)
         elif message.reply_to_message and message.reply_to_message.from_user.id == client.me.id:
