@@ -234,7 +234,7 @@ async def echo(client, message):
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
         # Генерация случайного числа от 1 до 100
-        random_number = randint(1, 100)
+        random_number = randint(1, 300)
 
         # Проверка случайного числа для отправки различных типов медиа
         if random_number == 2:
