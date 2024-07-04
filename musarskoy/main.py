@@ -234,7 +234,7 @@ async def echo(client, message):
             await client.send_message(MUSAR_CHANNEL_ID, f"New response added: {message.text}")
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
-        # Генерация случайного числа от 1 до 100
+        # Генерация случайного числа от 1 до 300
         random_number = randint(1, 300)
 
         # Проверка случайного числа для отправки различных типов медиа
