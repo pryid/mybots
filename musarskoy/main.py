@@ -6,7 +6,7 @@ from random import choice, randint
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pyrogram.enums import ChatAction
-from constants import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL_ID
+from constants import API_ID, API_HASH, BOT_TOKEN, MUSAR_CHANNEL_ID
 
 # Настройка уровня логирования для Pyrogram
 logging.getLogger('pyrogram').setLevel(logging.WARNING)
@@ -30,7 +30,7 @@ def load_json_file(file_path, default_data):
             return json.load(file)
     except Exception as e:
         async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error loading {file_path}: {e}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Error loading {file_path}: {e}")
         return default_data
 
 responses_data = load_json_file(responses_file, {"responses": []})
@@ -64,7 +64,7 @@ def update_and_reload_json_file(file_path, data):
             json.dump(data, file, ensure_ascii=False, indent=4)
     except Exception as e:
         async def log_error_to_channel(client, message):
-            await client.send_message(LOG_CHANNEL_ID, f"Error saving {file_path}: {e}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Error saving {file_path}: {e}")
 
 # Функции для обновления данных
 def update_and_reload_responses(new_response):
@@ -109,13 +109,13 @@ async def send_random_item(client, message, item_list, chat_action, log_action, 
             await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_cached_media(message.chat.id, item_id, reply_to_message_id=message.id)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"{log_action}: {item_id}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"{log_action}: {item_id}")
         else:
             await message.reply(no_items_message)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"No {log_action} available to send.")
+            await client.send_message(MUSAR_CHANNEL_ID, f"No {log_action} available to send.")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error selecting {log_action}: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error selecting {log_action}: {e}")
 
 # Создание клиента Pyrogram
 app = Client("musarskoy", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -127,12 +127,12 @@ async def save_photo_from_user(client, message: Message):
         photo = message.photo
         file_id = photo.file_id
         update_and_reload_photo_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Photo ID saved: {file_id}")
+        await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #photo {file_id}")
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Photo caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Photo caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving photo ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving photo ID: {e}")
 
 @app.on_message(filters.voice & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_voice_from_user(client, message: Message):
@@ -140,12 +140,12 @@ async def save_voice_from_user(client, message: Message):
         voice = message.voice
         file_id = voice.file_id
         update_and_reload_voice_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Voice ID saved: {file_id}")
+        await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #voice {file_id}")
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Voice caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Voice caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving voice ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving voice ID: {e}")
 
 @app.on_message(filters.video_note & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_video_note_from_user(client, message: Message):
@@ -153,12 +153,12 @@ async def save_video_note_from_user(client, message: Message):
         video_note = message.video_note
         file_id = video_note.file_id
         update_and_reload_video_note_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Video note ID saved: {file_id}")
+        await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #videonote {file_id}")
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Video note caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Video note caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving video note ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving video note ID: {e}")
 
 @app.on_message(filters.video & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_video_from_user(client, message: Message):
@@ -166,12 +166,12 @@ async def save_video_from_user(client, message: Message):
         video = message.video
         file_id = video.file_id
         update_and_reload_video_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Video ID saved: {file_id}")
+        await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #video {file_id}")
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Video caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Video caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving video ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving video ID: {e}")
 
 @app.on_message(filters.sticker & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_sticker_from_user(client, message: Message):
@@ -179,12 +179,13 @@ async def save_sticker_from_user(client, message: Message):
         sticker = message.sticker
         file_id = sticker.file_id
         update_and_reload_sticker_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Sticker ID saved: {file_id}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Sticker ID saved: {file_id}")
+        await client.send_sticker(MUSAR_CHANNEL_ID, file_id)
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Sticker caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Sticker caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving sticker ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving sticker ID: {e}")
 
 @app.on_message(filters.audio & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_music_from_user(client, message: Message):
@@ -192,12 +193,12 @@ async def save_music_from_user(client, message: Message):
         music = message.audio
         file_id = music.file_id
         update_and_reload_music_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Music ID saved: {file_id}")
+        await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #music {file_id}")
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Music caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Music caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving music ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving music ID: {e}")
 
 @app.on_message(filters.animation & (filters.user(musarskoy_id) | filters.user(admin_id)))
 async def save_animation_from_user(client, message: Message):
@@ -205,12 +206,12 @@ async def save_animation_from_user(client, message: Message):
         animation = message.animation
         file_id = animation.file_id
         update_and_reload_animation_ids(file_id)
-        await client.send_message(LOG_CHANNEL_ID, f"Animation ID saved: {file_id}")
+        await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #animation {file_id}")
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"Animation caption added as response: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Animation caption added as response: {message.caption}")
     except Exception as e:
-        await client.send_message(LOG_CHANNEL_ID, f"Error saving animation ID: {e}")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving animation ID: {e}")
 
 # Функции для проверки наличия ключевых слов в сообщении
 def check_message_for_keywords(message_text, keywords):
@@ -227,10 +228,10 @@ async def echo(client, message):
     if message.from_user.id == musarskoy_id:
         if message.caption:
             update_and_reload_responses(message.caption)
-            await client.send_message(LOG_CHANNEL_ID, f"New response added from caption: {message.caption}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"New response added from caption: {message.caption}")
         else:
             update_and_reload_responses(message.text)
-            await client.send_message(LOG_CHANNEL_ID, f"New response added: {message.text}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"New response added: {message.text}")
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
         # Генерация случайного числа от 1 до 100
@@ -257,7 +258,7 @@ async def echo(client, message):
             await asyncio.sleep(1)  # Задержка 1 секунда
             await message.reply(response)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Sent response: {response}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Sent response: {response}")
         elif check_message_for_keywords(message.text, ["чмоня"]):
             await send_random_item(client, message, photo_ids, ChatAction.UPLOAD_PHOTO, "Sent random photo", "Фото отсутствуют.")
         elif check_message_for_keywords(message.text, ["помяукай"]):
@@ -280,7 +281,7 @@ async def echo(client, message):
             await asyncio.sleep(1)  # Задержка 1 секунда
             await message.reply(response)
             await asyncio.sleep(1)  # Задержка 1 секунда
-            await client.send_message(LOG_CHANNEL_ID, f"Replied to bot's message: {response}")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Replied to bot's message: {response}")
 
 # Запуск бота
 app.run()

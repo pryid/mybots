@@ -14,11 +14,12 @@ RUN pip install -r requirements.txt
 ENV TGAPI_ID=[telegram api id] \
     TGAPI_HASH=[telegram api hash] \
     TGAPI_ADMIN=[bot owner id] \
-    LOG_CHANNEL_ID=[channel for logging id] \
+    LOG_CHANNEL_ID=[channel for logging] \
     SBERPRIMEPLUS_TOKEN=[bot token] \
     TTS_CHECKER_TOKEN=[bot token] \
     SITRIM_TOKEN=[bot token] \
-    MUSARSKOY_TOKEN=[bot token]
+    MUSARSKOY_TOKEN=[bot token] \
+    MUSAR_CHANNEL_ID=[channel for musarskoy documents]
 # Команда для запуска ботов
 RUN chmod +x /app/start.sh
 CMD ["/app/start.sh"]
