@@ -275,7 +275,7 @@ async def echo(client, message):
             await send_random_item(client, message, animation_ids, ChatAction.UPLOAD_VIDEO, "Sent random animation", "Анимации отсутствуют.")
         elif check_message_for_keywords(message.text, ["шлюха", "проститутка"]):
             await client.send_reaction(message.chat.id, message.id, emoji="👍", big=True)
-        elif message.reply_to_message and message.reply_to_message.from_user.id == client.me.id:
+        elif message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
             await asyncio.sleep(1)  # Задержка 1 секунда
