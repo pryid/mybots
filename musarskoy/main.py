@@ -22,6 +22,7 @@ videos_file = '/app/data/musarskoy/videos.json'
 stickers_file = '/app/data/musarskoy/stickers.json'
 music_file = '/app/data/musarskoy/music.json'
 animations_file = '/app/data/musarskoy/animations.json'
+ignorelist_file = '/app/data/musarskoy/ignorelist.json'
 
 # Загрузка JSON-файлов
 def load_json_file(file_path, default_data):
@@ -32,6 +33,9 @@ def load_json_file(file_path, default_data):
         async def log_error_to_channel(client, message):
             await client.send_message(MUSAR_CHANNEL_ID, f"Error loading {file_path}: {e}")
         return default_data
+
+ignorelist_data = load_json_file(ignorelist_file, {"ignorelist_ids": []})
+ignorelist_ids = ignorelist_data["ignorelist_ids"]
 
 responses_data = load_json_file(responses_file, {"responses": []})
 responses = responses_data["responses"]
@@ -67,6 +71,13 @@ def update_and_reload_json_file(file_path, data):
             await client.send_message(MUSAR_CHANNEL_ID, f"Error saving {file_path}: {e}")
 
 # Функции для обновления данных
+def update_and_reload_ignorelist(new_id, action="add"):
+    if action == "add" and new_id not in ignorelist_ids:
+        ignorelist_ids.append(new_id)
+    elif action == "remove" and new_id in ignorelist_ids:
+        ignorelist_ids.remove(new_id)
+    update_and_reload_json_file(ignorelist_file, {"ignorelist_ids": ignorelist_ids})
+
 def update_and_reload_responses(new_response):
     responses.append(new_response)
     update_and_reload_json_file(responses_file, {"responses": responses})
@@ -224,6 +235,10 @@ def check_message_for_keywords(message_text, keywords):
 # Обработчик сообщений
 @app.on_message(filters.text)
 async def echo(client, message):
+    # Проверка ID пользователя в ignorelist
+    if message.from_user.id in ignorelist_ids:
+        return
+    
     # Проверка ID пользователя
     if message.from_user.id == musarskoy_id:
         if message.caption:
@@ -235,7 +250,7 @@ async def echo(client, message):
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
         # Генерация случайного числа от 1 до 300
-        random_number = randint(1, 300)
+        random_number = randint(1, 500)
 
         # Проверка случайного числа для отправки различных типов медиа
         if random_number == 2:
@@ -282,6 +297,27 @@ async def echo(client, message):
             await message.reply(response)
             await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_message(MUSAR_CHANNEL_ID, f"Replied to bot's message: {response}")
+
+# Обработчики команд
+@app.on_message(filters.command("shutupmotya"))
+async def shutupmotya_handler(client, message: Message):
+    user_id = message.from_user.id
+    update_and_reload_ignorelist(user_id, action="add")
+    await message.reply("Теперь игнорирую тебя чмоньку")
+
+@app.on_message(filters.command("talkmotya"))
+async def talkmotya_handler(client, message: Message):
+    user_id = message.from_user.id
+    update_and_reload_ignorelist(user_id, action="remove")
+    await message.reply("Теперь снова доёбываю тебя чмоньку")
+
+@app.on_message(filters.command("listignored"))
+async def listignored_handler(client, message: Message):
+    if ignorelist_ids:
+        ignorelist_text = "\n".join([f"{i+1}. {id}" for i, id in enumerate(ignorelist_ids)])
+    else:
+        ignorelist_text = "Список игнорируемых пользователей пуст."
+    await message.reply(ignorelist_text)
 
 # Запуск бота
 app.run()
