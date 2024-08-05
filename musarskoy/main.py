@@ -249,7 +249,7 @@ async def echo(client, message):
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
         # Генерация случайного числа от 1 до 300
-        random_number = randint(1, 300)
+        random_number = randint(1, 500)
 
         # Проверка случайного числа для отправки различных типов медиа
         if random_number == 2:
@@ -289,6 +289,23 @@ async def echo(client, message):
             await send_random_item(client, message, animation_ids, ChatAction.UPLOAD_VIDEO, "Sent random animation", "Анимации отсутствуют.")
         elif message.from_user and check_message_for_keywords(message.text, ["шлюха", "проститутка"]):
             await client.send_reaction(message.chat.id, message.id, emoji="👍", big=True)
+        elif message.from_user and check_message_for_keywords(message.text, ["/shutupmotya"]):
+            user_id = message.from_user.id
+            await update_and_reload_ignorelist(user_id, action="add")
+            await message.reply("Теперь игнорирую тебя чмоньку")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Received /shutupmotya command from user {user_id}")
+        elif message.from_user and check_message_for_keywords(message.text, ["/talkmotya"]):
+            user_id = message.from_user.id
+            await update_and_reload_ignorelist(user_id, action="remove")
+            await message.reply("Теперь снова доёбываю тебя чмоньку")
+            await client.send_message(MUSAR_CHANNEL_ID, f"Received /talkmotya command from user {user_id}")
+        elif message.from_user and check_message_for_keywords(message.text, ["/listignored"]):
+            if ignorelist_ids:
+                ignorelist_text = "\n".join([f"{i+1}. {id}" for i, id in enumerate(ignorelist_ids)])
+            else:
+                ignorelist_text = "Список игнорируемых пользователей пуст."
+            await message.reply(ignorelist_text)
+            await client.send_message(MUSAR_CHANNEL_ID, f"Received /listignored command from user {message.from_user.id}")
         elif message.from_user and message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
@@ -296,30 +313,6 @@ async def echo(client, message):
             await message.reply(response)
             await asyncio.sleep(1)  # Задержка 1 секунда
             await client.send_message(MUSAR_CHANNEL_ID, f"Replied to bot's message: {response}")
-
-# Обработчики команд
-@app.on_message(filters.command("shutupmotya"))
-async def shutupmotya_handler(client, message: Message):
-    user_id = message.from_user.id
-    await update_and_reload_ignorelist(user_id, action="add")
-    await message.reply("Теперь игнорирую тебя чмоньку")
-    await client.send_message(MUSAR_CHANNEL_ID, f"Received /shutupmotya command from user {user_id}")
-
-@app.on_message(filters.command("talkmotya"))
-async def talkmotya_handler(client, message: Message):
-    user_id = message.from_user.id
-    await update_and_reload_ignorelist(user_id, action="remove")
-    await message.reply("Теперь снова доёбываю тебя чмоньку")
-    await client.send_message(MUSAR_CHANNEL_ID, f"Received /talkmotya command from user {user_id}")
-
-@app.on_message(filters.command("listignored"))
-async def listignored_handler(client, message: Message):
-    if ignorelist_ids:
-        ignorelist_text = "\n".join([f"{i+1}. {id}" for i, id in enumerate(ignorelist_ids)])
-    else:
-        ignorelist_text = "Список игнорируемых пользователей пуст."
-    await message.reply(ignorelist_text)
-    await client.send_message(MUSAR_CHANNEL_ID, f"Received /listignored command from user {message.from_user.id}")
 
 # Запуск бота
 app.run()
