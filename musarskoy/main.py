@@ -30,8 +30,7 @@ def load_json_file(file_path, default_data):
         with open(file_path, "r") as file:
             return json.load(file)
     except Exception as e:
-        async def log_error_to_channel(client, message):
-            await client.send_message(MUSAR_CHANNEL_ID, f"Error loading {file_path}: {e}")
+        print(f"Error loading {file_path}: {e}")
         return default_data
 
 ignorelist_data = load_json_file(ignorelist_file, {"ignorelist_ids": []})
@@ -62,52 +61,52 @@ animations_data = load_json_file(animations_file, {"animation_ids": []})
 animation_ids = animations_data.get("animation_ids", [])
 
 # Функция для обновления и перезагрузки JSON-файлов
-async def update_and_reload_json_file(file_path, data, client):
+def update_and_reload_json_file(file_path, data):
     try:
         with open(file_path, "w") as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
     except Exception as e:
-        await client.send_message(MUSAR_CHANNEL_ID, f"Error saving {file_path}: {e}")
+        print(f"Error saving {file_path}: {e}")
 
 # Функции для обновления данных
-async def update_and_reload_ignorelist(new_id, action="add"):
+def update_and_reload_ignorelist(new_id, action="add"):
     if action == "add" and new_id not in ignorelist_ids:
         ignorelist_ids.append(new_id)
     elif action == "remove" and new_id in ignorelist_ids:
         ignorelist_ids.remove(new_id)
-    await update_and_reload_json_file(ignorelist_file, {"ignorelist_ids": ignorelist_ids})
+    update_and_reload_json_file(ignorelist_file, {"ignorelist_ids": ignorelist_ids})
 
-async def update_and_reload_responses(new_response):
+def update_and_reload_responses(new_response):
     responses.append(new_response)
-    await update_and_reload_json_file(responses_file, {"responses": responses})
+    update_and_reload_json_file(responses_file, {"responses": responses})
 
-async def update_and_reload_photo_ids(new_photo_id):
+def update_and_reload_photo_ids(new_photo_id):
     photo_ids.append(new_photo_id)
-    await update_and_reload_json_file(photos_file, {"photo_ids": photo_ids})
+    update_and_reload_json_file(photos_file, {"photo_ids": photo_ids})
 
-async def update_and_reload_voice_ids(new_voice_id):
+def update_and_reload_voice_ids(new_voice_id):
     voice_ids.append(new_voice_id)
-    await update_and_reload_json_file(voices_file, {"voice_ids": voice_ids})
+    update_and_reload_json_file(voices_file, {"voice_ids": voice_ids})
 
-async def update_and_reload_video_note_ids(new_video_note_id):
+def update_and_reload_video_note_ids(new_video_note_id):
     video_note_ids.append(new_video_note_id)
-    await update_and_reload_json_file(video_notes_file, {"video_note_ids": video_note_ids})
+    update_and_reload_json_file(video_notes_file, {"video_note_ids": video_note_ids})
 
-async def update_and_reload_video_ids(new_video_id):
+def update_and_reload_video_ids(new_video_id):
     video_ids.append(new_video_id)
-    await update_and_reload_json_file(videos_file, {"video_ids": video_ids})
+    update_and_reload_json_file(videos_file, {"video_ids": video_ids})
 
-async def update_and_reload_sticker_ids(new_sticker_id):
+def update_and_reload_sticker_ids(new_sticker_id):
     sticker_ids.append(new_sticker_id)
-    await update_and_reload_json_file(stickers_file, {"sticker_ids": sticker_ids})
+    update_and_reload_json_file(stickers_file, {"sticker_ids": sticker_ids})
 
-async def update_and_reload_music_ids(new_music_id):
+def update_and_reload_music_ids(new_music_id):
     music_ids.append(new_music_id)
-    await update_and_reload_json_file(music_file, {"music_ids": music_ids})
+    update_and_reload_json_file(music_file, {"music_ids": music_ids})
 
-async def update_and_reload_animation_ids(new_animation_id):
+def update_and_reload_animation_ids(new_animation_id):
     animation_ids.append(new_animation_id)
-    await update_and_reload_json_file(animations_file, {"animation_ids": animation_ids})
+    update_and_reload_json_file(animations_file, {"animation_ids": animation_ids})
 
 # Функции для отправки рандомных данных
 async def send_random_item(client, message, item_list, chat_action, log_action, no_items_message):
@@ -136,10 +135,10 @@ async def save_photo_from_user(client, message: Message):
     try:
         photo = message.photo
         file_id = photo.file_id
-        await update_and_reload_photo_ids(file_id)
+        update_and_reload_photo_ids(file_id)
         await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #photo {file_id}")
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Photo caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving photo ID: {e}")
@@ -149,10 +148,10 @@ async def save_voice_from_user(client, message: Message):
     try:
         voice = message.voice
         file_id = voice.file_id
-        await update_and_reload_voice_ids(file_id)
+        update_and_reload_voice_ids(file_id)
         await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #voice {file_id}")
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Voice caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving voice ID: {e}")
@@ -162,10 +161,10 @@ async def save_video_note_from_user(client, message: Message):
     try:
         video_note = message.video_note
         file_id = video_note.file_id
-        await update_and_reload_video_note_ids(file_id)
+        update_and_reload_video_note_ids(file_id)
         await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #videonote {file_id}")
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Video note caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving video note ID: {e}")
@@ -175,10 +174,10 @@ async def save_video_from_user(client, message: Message):
     try:
         video = message.video
         file_id = video.file_id
-        await update_and_reload_video_ids(file_id)
+        update_and_reload_video_ids(file_id)
         await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #video {file_id}")
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Video caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving video ID: {e}")
@@ -188,11 +187,11 @@ async def save_sticker_from_user(client, message: Message):
     try:
         sticker = message.sticker
         file_id = sticker.file_id
-        await update_and_reload_sticker_ids(file_id)
+        update_and_reload_sticker_ids(file_id)
         await client.send_message(MUSAR_CHANNEL_ID, f"Sticker ID saved: {file_id}")
         await client.send_sticker(MUSAR_CHANNEL_ID, file_id)
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Sticker caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving sticker ID: {e}")
@@ -202,10 +201,10 @@ async def save_music_from_user(client, message: Message):
     try:
         music = message.audio
         file_id = music.file_id
-        await update_and_reload_music_ids(file_id)
+        update_and_reload_music_ids(file_id)
         await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #music {file_id}")
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Music caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving music ID: {e}")
@@ -215,10 +214,10 @@ async def save_animation_from_user(client, message: Message):
     try:
         animation = message.animation
         file_id = animation.file_id
-        await update_and_reload_animation_ids(file_id)
+        update_and_reload_animation_ids(file_id)
         await client.send_cached_media(MUSAR_CHANNEL_ID, file_id, caption=f"Saved new #animation {file_id}")
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"Animation caption added as response: {message.caption}")
     except Exception as e:
         await client.send_message(MUSAR_CHANNEL_ID, f"Error saving animation ID: {e}")
@@ -234,6 +233,30 @@ def check_message_for_keywords(message_text, keywords):
 # Обработчик сообщений
 @app.on_message(filters.text)
 async def echo(client, message):
+    # Команды для управления списком игнорирования
+    if message.from_user and check_message_for_keywords(message.text, ["/shutupmotya"]):
+        user_id = message.from_user.id
+        update_and_reload_ignorelist(user_id, action="add")
+        await message.reply("Теперь игнорирую тебя чмоньку")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Received /shutupmotya command from user {user_id}")
+        return
+
+    if message.from_user and check_message_for_keywords(message.text, ["/talkmotya"]):
+        user_id = message.from_user.id
+        update_and_reload_ignorelist(user_id, action="remove")
+        await message.reply("Теперь снова доёбываю тебя чмоньку")
+        await client.send_message(MUSAR_CHANNEL_ID, f"Received /talkmotya command from user {user_id}")
+        return
+
+    if message.from_user and check_message_for_keywords(message.text, ["/listignored"]):
+        if ignorelist_ids:
+            ignorelist_text = "\n".join([f"{i+1}. {id}" for i, id in enumerate(ignorelist_ids)])
+        else:
+            ignorelist_text = "Список игнорируемых пользователей пуст."
+        await message.reply(ignorelist_text)
+        await client.send_message(MUSAR_CHANNEL_ID, f"Received /listignored command from user {message.from_user.id}")
+        return
+    
     # Проверка, что from_user не является None
     if message.from_user and message.from_user.id in ignorelist_ids:
         return
@@ -241,14 +264,14 @@ async def echo(client, message):
     # Проверка ID пользователя
     if message.from_user and message.from_user.id == musarskoy_id:
         if message.caption:
-            await update_and_reload_responses(message.caption)
+            update_and_reload_responses(message.caption)
             await client.send_message(MUSAR_CHANNEL_ID, f"New response added from caption: {message.caption}")
         else:
-            await update_and_reload_responses(message.text)
+            update_and_reload_responses(message.text)
             await client.send_message(MUSAR_CHANNEL_ID, f"New response added: {message.text}")
         await asyncio.sleep(1)  # Задержка 1 секунда
     else:
-        # Генерация случайного числа от 1 до 300
+        # Генерация случайного числа от 1 до 500
         random_number = randint(1, 500)
 
         # Проверка случайного числа для отправки различных типов медиа
@@ -289,23 +312,6 @@ async def echo(client, message):
             await send_random_item(client, message, animation_ids, ChatAction.UPLOAD_VIDEO, "Sent random animation", "Анимации отсутствуют.")
         elif message.from_user and check_message_for_keywords(message.text, ["шлюха", "проститутка"]):
             await client.send_reaction(message.chat.id, message.id, emoji="👍", big=True)
-        elif message.from_user and check_message_for_keywords(message.text, ["/shutupmotya"]):
-            user_id = message.from_user.id
-            await update_and_reload_ignorelist(user_id, action="add")
-            await message.reply("Теперь игнорирую тебя чмоньку")
-            await client.send_message(MUSAR_CHANNEL_ID, f"Received /shutupmotya command from user {user_id}")
-        elif message.from_user and check_message_for_keywords(message.text, ["/talkmotya"]):
-            user_id = message.from_user.id
-            await update_and_reload_ignorelist(user_id, action="remove")
-            await message.reply("Теперь снова доёбываю тебя чмоньку")
-            await client.send_message(MUSAR_CHANNEL_ID, f"Received /talkmotya command from user {user_id}")
-        elif message.from_user and check_message_for_keywords(message.text, ["/listignored"]):
-            if ignorelist_ids:
-                ignorelist_text = "\n".join([f"{i+1}. {id}" for i, id in enumerate(ignorelist_ids)])
-            else:
-                ignorelist_text = "Список игнорируемых пользователей пуст."
-            await message.reply(ignorelist_text)
-            await client.send_message(MUSAR_CHANNEL_ID, f"Received /listignored command from user {message.from_user.id}")
         elif message.from_user and message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
             response = choice(responses)
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
