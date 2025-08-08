@@ -2,8 +2,8 @@ import json
 import asyncio
 from pyrogram import Client, errors
 API_ID=26121547
-API_HASH="8bedd570abbc909f7dea9e80345d2f99"
-BOT_TOKEN="6763977760:AAE0ZYxn-QkCz-sGid10YD0A2r9xaII8F6o"
+API_HASH=""
+BOT_TOKEN=""
 
 # ID канала, в который будут отправляться медиафайлы
 CHANNEL_ID = -1002152305595
